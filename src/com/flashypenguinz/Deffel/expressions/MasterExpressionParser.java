@@ -8,7 +8,8 @@ public class MasterExpressionParser {
 		expressions = new AddonExpression[] {
 			new Input(),
 			new ToString(),
-			new CallFunction()
+			new CallFunction(),
+			new Random()
 		};
 	}
 	
