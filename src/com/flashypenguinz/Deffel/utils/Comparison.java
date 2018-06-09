@@ -1,28 +1,31 @@
 package com.flashypenguinz.Deffel.utils;
 
+import java.util.regex.Pattern;
+
 public enum Comparison {
 
-	EQUAL("="), NOTEQUAL("!="), GREATERTHAN(">"), LESSTHAN("<"), GREATERTHANEQUALTO(">="), LESSTHANEQUALTO("<=");
-	
-	private String token;
-	
-	Comparison(String token) {
-		this.token = token;
+	EQUAL("(=|(is)?( )?equal(s)?( )?(to)?|is equal to)"), NOTEQUAL(
+			"(!=|(does)?( )?not equal(s)?( )?(to)?|doesn(')?t equal(s)?( )?(to)?)"), GREATERTHAN(
+			"(>|(is)?( )?greater( )?(than)?)"), LESSTHAN(
+			"(<|(is)?( )?less( )?(than)?)");
+
+	private String pattern;
+
+	Comparison(String pattern) {
+		this.pattern = pattern;
 	}
-	
+
 	public static Comparison valueOfToken(String token) {
-		for(Comparison c: Comparison.values()) {
-			if(c.toString().equalsIgnoreCase(token)) {
+		for(Comparison c: values()) {
+			if(Pattern.matches("^("+c.getPattern()+")", token)) {
 				return c;
 			}
 		}
 		return null;
 	}
 	
-	@Override
-	public String toString() {
-		return token;
+	public String getPattern() {
+		return pattern;
 	}
-	
-	
+
 }

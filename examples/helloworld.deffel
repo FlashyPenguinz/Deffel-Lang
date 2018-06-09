@@ -1,7 +1,4 @@
 # Hello World Example
 
 on start:
-	set {_test} to "Hey World"
-	say {_test}
-	set {_test} to 2
-	say convert {_test} to string
+	say "Hello World"

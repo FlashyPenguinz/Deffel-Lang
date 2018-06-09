@@ -35,7 +35,7 @@ public class Expression {
 			while (tokenizer.hasNextToken()) {
 				tokens.add(tokenizer.nextToken());
 			}
-
+			
 			Stack<Value> values = new Stack<Value>();
 			Stack<Operator> operators = new Stack<Operator>();
 
@@ -60,7 +60,9 @@ public class Expression {
 					}
 					values.push(value);
 				} else if (token.getType().equals(TokenType.STRING_LITERAL)) {
-					values.push(new Value(Type.STRING, token.getToken()));
+					values.push(new Value(Type.STRING, token.getToken().substring(1, token.getToken().length()-1)));
+				} else if(token.getType().equals(TokenType.BOOLEAN_LITERAL)) {
+					values.push(new Value(Type.BOOLEAN, Boolean.valueOf(token.getToken())));
 				} else if (token.getType().equals(TokenType.TOKEN)) {
 					Operator operator = Operator.getOperator(token.getToken());
 					if (operator.equals(Operator.LEFTPARENTHESIS)) {
@@ -82,15 +84,16 @@ public class Expression {
 					}
 				} else if(token.getType().equals(TokenType.VARIABLE)){
 					String variableToken = token.getToken();
-					boolean global = variableToken.contains("_");
-					variableToken = variableToken.substring(2, variableToken.length()-1);
-					if(global) {
+					boolean local = variableToken.contains("_");
+					if(!local) {
+						variableToken = variableToken.substring(1, variableToken.length()-1);
 						Variable var = com.flashypenguinz.Deffel.Runtime.getRuntime().getVariable(variableToken);
 						if(var != null)
 							values.push(var);
 						else
 							throw new InvalidCodeException(variableToken+" is not a valid global variable!");
 					} else {
+						variableToken = variableToken.substring(2, variableToken.length()-1);
 						if(block.hasVariable(variableToken)) {
 							Variable var = block.getVariable(variableToken);
 							values.push(var);
@@ -105,9 +108,15 @@ public class Expression {
 							String expression = matcher.group().trim();
 							expressionLine = matcher.replaceFirst("");
 							Value value = e.getValue(block, new DeffelTokenizer(expression));
-							int size = expression.split(" ").length-1;
+							int size = 0;
+							DeffelTokenizer t = new DeffelTokenizer(expression);
+							while(t.hasNextToken()) {
+								t.nextToken();
+								size++;
+							}
 							skipTokens = size;
 							values.push(value);
+							break;
 						}
 					}
 				}
@@ -118,7 +127,7 @@ public class Expression {
 			}
 			return new Expression(values.pop());
 		} catch (EmptyStackException e) {
-			throw new InvalidCodeException("Expression is Invalid");
+			throw new InvalidCodeException("The expression \""+line.trim()+"\" is Invalid");
 		} catch (InvalidCodeException e) {
 			throw new InvalidCodeException(e.getMessage());
 		}

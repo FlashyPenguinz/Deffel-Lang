@@ -23,4 +23,7 @@ public enum TokenType {
 	/** Anything enclosed in double quotes: "Hello" "Welcome" */
 	STRING_LITERAL,
 	
+	/** True or False */
+	BOOLEAN_LITERAL;
+	
 }

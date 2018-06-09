@@ -9,7 +9,14 @@ public class MasterParser {
 		parsers = new Parser<?>[] {
 				new OnParser(),
 				new SayParser(),
-				new VariableAssignmentParser()};
+				new VariableAssignmentParser(),
+				new IfParser(),
+				new FunctionParser(),
+				new CallFunctionParser(),
+				new ReturnParser(),
+				new WhileParser(),
+				new ForParser(),
+				new BreakParser()};
 	}
 	
 	public Parser<?> match(String line) {

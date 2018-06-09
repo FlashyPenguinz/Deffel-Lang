@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import com.flashypenguinz.Deffel.block.Block;
+import com.flashypenguinz.Deffel.block.Endable;
+import com.flashypenguinz.Deffel.block.Function;
 import com.flashypenguinz.Deffel.block.On;
 import com.flashypenguinz.Deffel.block.ReadOnlyBlock;
 import com.flashypenguinz.Deffel.expressions.MasterExpressionParser;
@@ -25,17 +27,19 @@ public class Runtime {
 	private static Runtime runtime;
 	
 	private ArrayList<On> indicators;
+	private ArrayList<Function> functions;
 	private ArrayList<Variable> globalVariables;
 	
 	public Runtime() {
 		runtime = this;
 		try {
 			this.indicators = new ArrayList<On>();
+			this.functions = new ArrayList<Function>();
 			this.globalVariables = new ArrayList<Variable>();
 			
 			BufferedReader reader = null;
 			try {
-				reader = new BufferedReader(new FileReader("examples/helloworld.deffel"));
+				reader = new BufferedReader(new FileReader("examples/current.deffel"));
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
 			}
@@ -54,6 +58,19 @@ public class Runtime {
 				if (firstToken.equals("#")) {
 	                continue;
 	            }
+				if (firstToken.equals("end")||firstToken.equals("else")||firstToken.equals("elseif")) {
+	                if (block == null) {
+	                	reader.close();
+	                    throw new InvalidCodeException("Attempted to end non-existent block");
+	                }
+	                if (!(block instanceof Endable)) {
+	                	reader.close();
+						throw new InvalidCodeException("Attempted to end non-endable block");
+	                }
+	                block = block.getSuperBlock();
+	                if(firstToken.equals("end"))
+	                	continue;
+	            }
 				DeffelTokenizer tokenizer = new DeffelTokenizer(line);
 				Parser<?> matchedParser = parser.match(line);
 				if(matchedParser == null) {
@@ -64,6 +81,8 @@ public class Runtime {
 				Block newBlock = matchedParser.parse(block, tokenizer);
 				if(newBlock instanceof On) {
 					indicators.add((On) newBlock);
+				} else if(newBlock instanceof Function) {
+					functions.add((Function) newBlock);
 				} else {
 					if((newBlock instanceof ReadOnlyBlock)) {
 						makeNewBlock = false;
@@ -81,10 +100,24 @@ public class Runtime {
 			}
 			
 		} catch (InvalidCodeException e) {
-			e.printStackTrace();
+			System.err.println(e.getMessage());
+			return;
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public Function getFunction(String name) {
+		for(Function function: functions) {
+			if(function.getName().equals(name)) {
+				return function;
+			}
+		}
+		return null;
+	}
+	
+	public boolean hasFunction(String name) {
+		return getFunction(name) != null;
 	}
 	
 	public Variable getVariable(String name) {

@@ -11,16 +11,16 @@ import com.flashypenguinz.Deffel.utils.Value;
 
 public class Input extends AddonExpression {
 
+	private static Scanner scanner = new Scanner(System.in);
+	
 	@Override
 	public Pattern getRegex() {
-		return Pattern.compile("get input");
+		return Pattern.compile("get( )+input");
 	}
 
 	@Override
 	public Value getValue(Block superBlock, Tokenizer tokenizer) throws InvalidCodeException{
-		Scanner s = new Scanner(System.in);
-		String value = s.nextLine();
-		s.close();
+		String value = scanner.nextLine();
 		double d = 0;
 		try {  
 		     d = Double.parseDouble(value);  

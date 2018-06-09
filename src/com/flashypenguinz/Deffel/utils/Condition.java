@@ -18,7 +18,7 @@ public class Condition {
 	
 	public boolean isConditionTrue() throws InvalidCodeException {
 		Value a = Expression.parse(this.a, superBlock).evaluate(), b = Expression.parse(this.b, superBlock).evaluate();
-
+		
         boolean success;
         
         if(comparison == Comparison.EQUAL) {
@@ -40,10 +40,6 @@ public class Condition {
                 success = aInt > bInt;
             } else if (comparison == Comparison.LESSTHAN) {
                 success = aInt < bInt;
-            } else if (comparison == Comparison.GREATERTHANEQUALTO) {
-                success = aInt >= bInt;
-            } else if (comparison == Comparison.LESSTHANEQUALTO) {
-                success = aInt <= bInt;
             } else {
                 throw new IllegalArgumentException(comparison + " is not supported");
             }

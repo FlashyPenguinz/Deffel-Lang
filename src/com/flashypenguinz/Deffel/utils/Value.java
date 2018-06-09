@@ -30,7 +30,9 @@ public class Value {
         	return Double.valueOf(value.toString());
         } else if (type == Type.STRING) {
             return value;
-        } else {
+        } else if (type == Type.BOOLEAN){
+        	return Boolean.valueOf(value.toString());
+        } else{
             return value;
         }
 	}

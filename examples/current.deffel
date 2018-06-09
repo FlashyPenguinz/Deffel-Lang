@@ -1,0 +1,45 @@
+# Island Survival
+
+on start:
+	set {_startgame} = 0
+	say "You wake up dazed..."
+	set {_start} = 1
+	while ({_start} = 1)
+		set {_getinput} = get input
+		if ({_getinput} = "Start")
+			set {_enteredname} = 0
+			while ({_enteredname} = 0)
+				say "What is your name?"
+				set {_name} = get input
+				if ({_name} = "")
+					say "You need to enter a name!"
+				else
+					say "Welcome To Island Survival, "+{_name}+"!"
+					set {_startgame} = 1
+					set {_enteredname} = 1
+				end
+			end
+		elseif ({_getinput} = "Skip")
+			say "You have skipped the introduction!"
+			set {_startgame} = 1
+			break
+		end
+	end
+	if ({_startgame} = 1)
+		say "The beach is cold with rain pouring. Where should you go? Into the Forest (F) or along the coast-line? (C)"
+		set {_getinput} = get input
+# PATH 1 HERE --------------------------------------------------------------------------------------------
+		if ({_getinput} = "F")
+			say "As you enter the forest, hunger is all you can think about. Do you look for food (L) or build a fire? (F)"
+			set {_getinput} = get input
+			if ({_getinput} = "L")
+				say "As you look for food,"
+			elseif ({_getinput} = "F")
+				say "hi"
+			end
+# PATH 2 HERE ---------------------------------------------------------------------------------------------
+		elseif ({_getinput} = "C")
+			say "You walk along the coast mindlessly. The sun drains all your moisture. Your eyes feel like rock. Do you take a swim (S) or keep going? (G)"
+			set {_getinput} = get input
+		end
+	end

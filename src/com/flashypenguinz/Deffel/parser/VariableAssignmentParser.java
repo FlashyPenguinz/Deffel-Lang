@@ -3,6 +3,7 @@ package com.flashypenguinz.Deffel.parser;
 import com.flashypenguinz.Deffel.block.Block;
 import com.flashypenguinz.Deffel.block.VariableAssignment;
 import com.flashypenguinz.Deffel.tokenizer.Regex;
+import com.flashypenguinz.Deffel.tokenizer.Token;
 import com.flashypenguinz.Deffel.tokenizer.Tokenizer;
 import com.flashypenguinz.Deffel.utils.InvalidCodeException;
 
@@ -14,25 +15,69 @@ public class VariableAssignmentParser extends Parser<VariableAssignment> {
 
 	@Override
 	public boolean shouldParse(String line) {
-		return line.matches("set "+Regex.VARIABLE+" (to|\\=) "+Regex.EXPRESSION);
+		return line.matches(Regex.VARIABLE_ASSIGNMENT);
 	}
 
 	@Override
 	public VariableAssignment parse(Block superBlock, Tokenizer tokenizer) throws InvalidCodeException {
+		return parseVariableAssignment(superBlock, tokenizer);
+	}
+
+	public static VariableAssignment parseVariableAssignment(Block superBlock, Tokenizer tokenizer) throws InvalidCodeException {
 		tokenizer.nextToken(); // Skip the set token
 		
 		String variableToken = tokenizer.nextToken().getToken();
-		boolean global = variableToken.contains("_");
-		variableToken = variableToken.substring(2, variableToken.length()-1);
+		boolean local = variableToken.contains("_");
+		if(!local)
+			variableToken = variableToken.substring(1, variableToken.length()-1);
+		else
+			variableToken = variableToken.substring(2, variableToken.length()-1);
 		
-		tokenizer.nextToken(); // Skip the to or = token
+		Token firstExpression = tokenizer.nextToken(); 
+		Token secondExpression = tokenizer.nextToken(); 
 		
-		String expression = tokenizer.getLine();
+		String expression = "";
+		if(secondExpression.getToken().matches("(to|\\=|\\+|\\-)")) {
+			if(secondExpression.getToken().equals("to"))
+				expression = tokenizer.getLine();
+			else {
+				if(secondExpression.getToken().equals("=")) {
+					if(firstExpression.getToken().equals("+")) {
+						if(local)
+							expression = "{_"+variableToken+"} + ("+tokenizer.getLine()+")";
+						else
+							expression = "{"+variableToken+"} + ("+tokenizer.getLine()+")";
+					} else {
+						if(local)
+							expression = "{_"+variableToken+"} - ("+tokenizer.getLine()+")";
+						else
+							expression = "{"+variableToken+"} - ("+tokenizer.getLine()+")";
+					}
+				} else if(secondExpression.getToken().equals("+")) {
+					if(firstExpression.getToken().equals("+")) {
+						if(local)
+							expression = "{_"+variableToken+"} + 1";
+						else
+							expression = "{"+variableToken+"} + 1";
+					} else {
+						throw new InvalidCodeException("Cannot set variable to +-!");
+					}
+				} else if(secondExpression.getToken().equals("-")) {
+					if(firstExpression.getToken().equals("-")) {
+						if(local)
+							expression = "{_"+variableToken+"} - 1";
+						else
+							expression = "{"+variableToken+"} - 1";
+					} else {
+						throw new InvalidCodeException("Cannot set variable to -+!");
+					}
+				}
+			}
+		} else {
+			expression = secondExpression.getToken()+tokenizer.getLine();
+		}
 		
-		return new VariableAssignment(superBlock, variableToken, expression, global);
-		
+		return new VariableAssignment(superBlock, variableToken, expression, !local);
 	}
-
-	
-	
+	 
 }
